@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMedic - Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a9cb7;
+            --secondary-color: #2a7a8c;
+            --accent-color: #e9f5f7;
+            --dark-color: #333333;
+            --light-color: #f8f9fa;
+            --sidebar-width: 250px;
+        }
+        
+        body {
+            background-color: #f0f5f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 1rem;
+            z-index: 1030;
+        }
+        
+        .navbar-brand {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.8rem;
+        }
+        
+        .navbar-brand span {
+            color: var(--secondary-color);
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            position: fixed;
+            top: 56px;
+            left: 0;
+            height: calc(100vh - 56px);
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            padding-top: 20px;
+            z-index: 1020;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+        
+        .sidebar-link {
+            display: block;
+            padding: 12px 20px;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .sidebar-link:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .sidebar-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            min-height: calc(100vh - 56px);
+        }
+        
+        .welcome-header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+        
+        .welcome-header h1 {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
+        .quick-access {
+            margin-bottom: 30px;
+        }
+        
+        .access-button {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            padding: 15px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        
+        .access-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .access-button img {
+            display: block;
+            height: 60px;
+            margin: 0 auto 15px;
+        }
+        
+        .access-button span {
+            font-weight: 500;
+        }
+        
+        .info-section {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .info-section h3 {
+            color: var(--dark-color);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .placeholder-text {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.blue {
+            background-color: rgba(26, 156, 183, 0.2);
+            color: var(--primary-color);
+        }
+        
+        .stat-icon.green {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+        
+        .stat-icon.orange {
+            background-color: rgba(255, 153, 0, 0.2);
+            color: #ff9900;
+        }
+        
+        .stat-icon.purple {
+            background-color: rgba(111, 66, 193, 0.2);
+            color: #6f42c1;
+        }
+        
+        .stat-info h4 {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .stat-info p {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0;
+        }
+        
+        .banner-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .btn-login {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-login:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .guest-indicator {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .navbar-toggler {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid">
+            <button class="navbar-toggler me-2" type="button" id="sidebar-toggle">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="#">E<span>Medic</span></a>
+            <div class="ms-auto d-flex align-items-center">
+                <span class="guest-indicator me-3 d-none d-md-inline">Guest Mode</span>
+                {% comment %} <a href="#" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                </a> {% endcomment %}
+                {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                </a>
+            {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="sidebar-link active"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="#" class="sidebar-link"><i class="fas fa-calendar-check"></i> Appointments</a>
+        <a href="#" class="sidebar-link"><i class="fas fa-user-injured"></i> Patients</a>
+        <a href="#" class="sidebar-link"><i class="fas fa-user-md"></i> Doctors</a>
+        <a href="#" class="sidebar-link"><i class="fas fa-notes-medical"></i> Health Records</a>
+        <a href="#" class="sidebar-link"><i class="fas fa-comment-medical"></i> Feedback</a>
+        <a href="#" class="sidebar-link"><i class="fas fa-cog"></i> Settings</a>
+        <a href="#" class="sidebar-link"><i class="fas fa-question-circle"></i> Help</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="welcome-header">
+            <h1>Welcome to EMedic</h1>
+            <p class="text-muted">The complete healthcare management solution.</p>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Daily Appointments</h4>
+                    <p>50+</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Active Patients</h4>
+                    <p>1,200+</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Specialist Doctors</h4>
+                    <p>45</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Departments</h4>
+                    <p>12</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Banner Image -->
+        <img src="/api/placeholder/1200/400" alt="Medical Dashboard" class="banner-img">
+
+        <div class="quick-access row">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <a href="#" class="access-button">
+                    <img src="/api/placeholder/60/60" alt="Appointments" class="mb-2">
+                    <span>Appointments</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <a href="#" class="access-button">
+                    <img src="/api/placeholder/60/60" alt="Patients" class="mb-2">
+                    <span>Patients</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <a href="#" class="access-button">
+                    <img src="/api/placeholder/60/60" alt="Doctors" class="mb-2">
+                    <span>Doctors</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <a href="#" class="access-button">
+                    <img src="/api/placeholder/60/60" alt="New Appointment" class="mb-2">
+                    <span>New Appointment</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>System Overview</h3>
+            <div class="placeholder-text">
+                <p>Welcome to the EMedic Healthcare Management System. This platform is designed to streamline medical practice operations, improve patient care coordination, and enhance the overall healthcare experience. Healthcare providers have access to comprehensive tools for managing appointments, patient records, and medical data.</p>
+                <p>Please <a href="#" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">login</a> to access all features and functionality of the system. The dashboard provides quick access to important tasks and information. Use the sidebar navigation to explore different sections of the application.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h3>Featured Specialties</h3>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="/api/placeholder/40/40" alt="Specialty" class="avatar-img me-3">
+                                    <div>
+                                        <h5 class="mb-1">Cardiology</h5>
+                                        <p class="mb-1">Heart & Cardiovascular Care</p>
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">12 Doctors</span>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="/api/placeholder/40/40" alt="Specialty" class="avatar-img me-3">
+                                    <div>
+                                        <h5 class="mb-1">Neurology</h5>
+                                        <p class="mb-1">Brain & Nervous System</p>
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">8 Doctors</span>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="/api/placeholder/40/40" alt="Specialty" class="avatar-img me-3">
+                                    <div>
+                                        <h5 class="mb-1">Orthopedics</h5>
+                                        <p class="mb-1">Bone & Joint Care</p>
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">10 Doctors</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-section">
+                    <h3>Services & Facilities</h3>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="/api/placeholder/40/40" alt="Service" class="avatar-img me-3">
+                                    <div>
+                                        <h5 class="mb-1">24/7 Emergency Care</h5>
+                                        <p class="mb-1">Round-the-clock emergency services</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="/api/placeholder/40/40" alt="Service" class="avatar-img me-3">
+                                    <div>
+                                        <h5 class="mb-1">Diagnostic Imaging</h5>
+                                        <p class="mb-1">X-ray, MRI, CT scan and ultrasound</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="/api/placeholder/40/40" alt="Service" class="avatar-img me-3">
+                                    <div>
+                                        <h5 class="mb-1">Laboratory Services</h5>
+                                        <p class="mb-1">Comprehensive testing facilities</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events/Calendar Section -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="info-section">
+                    <h3>Health Information</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">COVID-19 Updates</h5>
+                                    <p class="card-text">Stay updated with the latest information about COVID-19 prevention, symptoms, and treatment options.</p>
+                                    <a href="#" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Healthy Living Tips</h5>
+                                    <p class="card-text">Discover practical advice for maintaining a healthy lifestyle, including diet, exercise, and mental well-being.</p>
+                                    <a href="#" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Hide sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            
+            if (window.innerWidth < 992 && sidebar.classList.contains('show') && 
+                !sidebar.contains(event.target) && event.target !== sidebarToggle) {
+                sidebar.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

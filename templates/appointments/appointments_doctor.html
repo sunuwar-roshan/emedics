@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container mt-4">
+        <h2>Doctor Appointments</h2>
+        <hr>
+        
+        <!-- Stats Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5>Today's Appointments</h5>
+                        <h3>{{ today_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5>Upcoming</h5>
+                        <h3>{{ upcoming_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5>Pending</h5>
+                        <h3>{{ pending_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5>Total Patients</h5>
+                        <h3>{{ total_patients }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="appointmentTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="today-tab" data-bs-toggle="tab" data-bs-target="#today" type="button" role="tab">Today</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">Upcoming</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">Past</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" type="button" role="tab">Cancelled</button>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content mt-3" id="appointmentTabsContent">
+            <!-- Today Tab -->
+            <div class="tab-pane fade show active" id="today" role="tabpanel">
+                {% if today_appointments %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Medium</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in today_appointments %}
+                            <tr>
+                                <td>{{ appointment.time_slot }}</td>
+                                <td>{{ appointment.patient_name }}</td>
+                                <td>{{ appointment.patient_email }}</td>
+                                <td>{{ appointment.get_appointment_type_display }}</td>
+                                <td>{{ appointment.appointment_mediums }}</td>
+                                <td>{{ appointment.get_status_display }}</td>
+                                <td>
+                                    <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-primary">View</a>
+                                    {% if appointment.status == 'scheduled' %}
+                                        <a href="{% url 'complete_appointment' appointment.id %}" class="btn btn-success">Mark as Completed</a>
+                                        <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-danger">Cancel Appointment</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No appointments scheduled for today.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Upcoming Tab -->
+            <div class="tab-pane fade" id="upcoming" role="tabpanel">
+                {% if upcoming_appointments %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Medium</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in upcoming_appointments %}
+                            <tr>
+                                <td>{{ appointment.appointment_date }}</td>
+                                <td>{{ appointment.time_slot }}</td>
+                                <td>{{ appointment.patient_name }}</td>
+                                <td>{{ appointment.patient_email }}</td>
+                                <td>{{ appointment.get_appointment_type_display }}</td>
+                                <td>{{ appointment.appointment_mediums }}</td>
+                                <td>{{ appointment.get_status_display }}</td>
+                                <td>
+                                    <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-primary">View</a>
+                                    {% comment %} <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-warning">Reschedule</a> {% endcomment %}
+                                    <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No upcoming appointments.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Past Tab -->
+            <div class="tab-pane fade" id="past" role="tabpanel">
+                {% if past_appointments %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Medium</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in past_appointments %}
+                            <tr>
+                                <td>{{ appointment.appointment_date }}</td>
+                                <td>{{ appointment.time_slot }}</td>
+                                <td>{{ appointment.patient_name }}</td>
+                                <td>{{ appointment.patient_email }}</td>
+                                <td>{{ appointment.get_appointment_type_display }}</td>
+                                <td>{{ appointment.appointment_mediums }}</td>
+                                <td>{{ appointment.get_status_display }}</td>
+                                <td>
+                                    <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No past appointments.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Cancelled Tab -->
+            <div class="tab-pane fade" id="cancelled" role="tabpanel">
+                {% if cancelled_appointments %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Medium</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in cancelled_appointments %}
+                            <tr>
+                                <td>{{ appointment.appointment_date }}</td>
+                                <td>{{ appointment.time_slot }}</td>
+                                <td>{{ appointment.patient_name }}</td>
+                                <td>{{ appointment.patient_email }}</td>
+                                <td>{{ appointment.get_appointment_type_display }}</td>
+                                <td>{{ appointment.appointment_mediums }}</td>
+                                <td>{{ appointment.notes|truncatechars:50 }}</td>
+                                <td>
+                                    <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No cancelled appointments.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

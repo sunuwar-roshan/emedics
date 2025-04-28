@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Book Appointment{% endblock %}
+
+{% block content %}
+
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="mb-0">Book Your Appointment</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" id="appointmentForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Specialization -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.specialization.id_for_label }}">
+                                    Select Doctor Specialization:
+                                </label>
+                                {{ form.specialization }}
+                                {% if form.specialization.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.specialization.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Doctor -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.doctor_name.id_for_label }}">
+                                    Select Doctor:
+                                </label>
+                                {{ form.doctor_name }}
+                                {% if form.doctor_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.doctor_name.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Patient Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.patient_name.id_for_label }}">
+                                    Your Name:
+                                </label>
+                                {{ form.patient_name }}
+                                {% if form.patient_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.patient_name.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Patient Email -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.patient_email.id_for_label }}">
+                                    Email Address:
+                                </label>
+                                {{ form.patient_email }}
+                                {% if form.patient_email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.patient_email.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Patient Phone -->
+                        <div class="mb-3">
+                            <label for="{{ form.patient_phone.id_for_label }}">
+                                Phone Number:
+                            </label>
+                            {{ form.patient_phone }}
+                            {% if form.patient_phone.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.patient_phone.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Appointment Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.appointment_date.id_for_label }}">
+                                    Appointment Date:
+                                </label>
+                                {{ form.appointment_date }}
+                                {% if form.appointment_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.appointment_date.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Time Slot -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.time_slot.id_for_label }}">
+                                    Time Slot:
+                                </label>
+                                {{ form.time_slot }}
+                                {% if form.time_slot.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.time_slot.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Appointment Type -->
+                        <div class="mb-3">
+                            <label for="{{ form.appointment_type.id_for_label }}">
+                                Appointment Type:
+                            </label>
+                            {{ form.appointment_type }}
+                            {% if form.appointment_type.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.appointment_type.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+
+                         <!-- Appointment Medium -->
+                         <div class="mb-3">
+                            <label for="{{ form.appointment_mediums.id_for_label }}">
+                                Appointment Medium:
+                            </label>
+                            {{ form.appointment_mediums }}
+                            {% if form.appointment_mediums.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.appointment_mediums.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}">
+                                Additional Notes (optional):
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.notes.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Non-field errors -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary px-4">
+                                Book Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // When specialization changes, update doctors dropdown
+        $('#{{ form.specialization.id_for_label }}').change(function() {
+            var specialization = $(this).val();
+            var doctorSelect = $('#{{ form.doctor_name.id_for_label }}');
+            
+            // Clear current options
+            doctorSelect.empty().prop('disabled', true);
+            doctorSelect.append($('<option></option>').val('').text('Loading doctors...'));
+            
+            // Get doctors for selected specialization via AJAX
+            $.ajax({
+                url: '{% url "get_doctors" %}',
+                type: 'POST',
+                data: {
+                    'specialization': specialization
+                },
+                success: function(data) {
+                    doctorSelect.empty();
+                    if (data.doctors.length > 0) {
+                        doctorSelect.append($('<option></option>').val('').text('Select a doctor'));
+                        $.each(data.doctors, function(index, doctor) {
+                            doctorSelect.append($('<option></option>').val(doctor).text(doctor));
+                        });
+                        doctorSelect.prop('disabled', false);
+                    } else {
+                        doctorSelect.append($('<option></option>').val('').text('No doctors available'));
+                    }
+                },
+                error: function() {
+                    doctorSelect.empty();
+                    doctorSelect.append($('<option></option>').val('').text('Error loading doctors'));
+                }
+            });
+        });
+        
+        // When appointment date or doctor changes, check time slot availability
+        $('#{{ form.appointment_date.id_for_label }}, #{{ form.doctor_name.id_for_label }}').change(function() {
+            var doctor = $('#{{ form.doctor_name.id_for_label }}').val();
+            var date = $('#{{ form.appointment_date.id_for_label }}').val();
+            var timeSlotSelect = $('#{{ form.time_slot.id_for_label }}');
+            
+            if (doctor && date) {
+                // Clear current options
+                timeSlotSelect.empty().prop('disabled', true);
+                timeSlotSelect.append($('<option></option>').val('').text('Checking availability...'));
+                
+                // Check availability via AJAX
+                $.ajax({
+                    url: '{% url "check_availability" %}',
+                    type: 'POST',
+                    data: {
+                        'doctor': doctor,
+                        'date': date
+                    },
+                    success: function(data) {
+                        timeSlotSelect.empty();
+                        if (data.available_slots.length > 0) {
+                            timeSlotSelect.append($('<option></option>').val('').text('Select a time slot'));
+                            $.each(data.available_slots, function(index, slot) {
+                                var displaySlot = convertTimeSlot(slot);
+                                timeSlotSelect.append($('<option></option>').val(slot).text(displaySlot));
+                            });
+                            timeSlotSelect.prop('disabled', false);
+                        } else {
+                            timeSlotSelect.append($('<option></option>').val('').text('No slots available'));
+                        }
+                    },
+                    error: function() {
+                        timeSlotSelect.empty();
+                        timeSlotSelect.append($('<option></option>').val('').text('Error checking availability'));
+                    }
+                });
+            }
+        });
+        
+        // Helper function to convert time slots to display format
+        function convertTimeSlot(slot) {
+            var timeSlots = {
+                '09:00': '09:00 AM - 09:30 AM',
+                '09:30': '09:30 AM - 10:00 AM',
+                '10:00': '10:00 AM - 10:30 AM',
+                '10:30': '10:30 AM - 11:00 AM',
+                '11:00': '11:00 AM - 11:30 AM',
+                '11:30': '11:30 AM - 12:00 PM',
+                '14:00': '02:00 PM - 02:30 PM',
+                '14:30': '02:30 PM - 03:00 PM',
+                '15:00': '03:00 PM - 03:30 PM',
+                '15:30': '03:30 PM - 04:00 PM',
+                '16:00': '04:00 PM - 04:30 PM',
+                '16:30': '04:30 PM - 05:00 PM'
+            };
+            return timeSlots[slot] || slot;
+        }
+    });
+</script>
+{% endblock %}

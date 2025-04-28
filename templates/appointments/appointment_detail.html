@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container mt-4">
+        <h2>Appointment Details</h2>
+        <div class="card">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Patient Name:</div>
+                    <div class="col-md-9">{{ appointment.patient_name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Email:</div>
+                    <div class="col-md-9">{{ appointment.patient_email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Date:</div>
+                    <div class="col-md-9">{{ appointment.appointment_date }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Time:</div>
+                    <div class="col-md-9">{{ appointment.time_slot }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Specialization:</div>
+                    <div class="col-md-9">{{ appointment.specialization }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Status:</div>
+                    <div class="col-md-9">{{ appointment.status }}</div>
+                </div>
+                {% if appointment.notes %}
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Notes:</div>
+                    <div class="col-md-9">{{ appointment.notes }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <a href="{% url 'appointments_doctor' %}" class="btn btn-secondary">Back to Appointments</a>
+                        
+                        {% if appointment.status == 'scheduled' %}
+                            <a href="{% url 'complete_appointment' appointment.id %}" class="btn btn-success">Mark as Completed</a>
+                            <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-warning">Reschedule</a>
+                            <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-danger">Cancel Appointment</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

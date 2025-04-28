@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container mt-4">
+        <h2>Appointment History</h2>
+        <hr>
+        {% if appointments %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Doctor</th>
+                        <th>Specialization</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.appointment_date }}</td>
+                        <td>{{ appointment.get_time_slot_display }}</td>
+                        <td>{{ appointment.doctor_name }}</td>
+                        <td>{{ appointment.specialization }}</td>
+                        <td>{{ appointment.get_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No appointments found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

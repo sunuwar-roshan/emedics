@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container mt-4">
+        <h2>Reschedule Appointment</h2>
+        <div class="card">
+            <div class="card-body">
+                <p>You are about to reschedule the following appointment:</p>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Patient:</div>
+                    <div class="col-md-9">{{ appointment.patient_name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Current Date:</div>
+                    <div class="col-md-9">{{ appointment.appointment_date }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Current Time:</div>
+                    <div class="col-md-9">{{ appointment.time_slot }}</div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="appointment_date" class="form-label">New Date:</label>
+                        <input type="date" class="form-control" id="appointment_date" name="appointment_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="time_slot" class="form-label">New Time Slot:</label>
+                        <select class="form-control" id="time_slot" name="time_slot" required>
+                            <option value="">Select a time slot</option>
+                            {% for slot in available_slots %}
+                                <option value="{{ slot }}">{{ slot }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason for Rescheduling (optional):</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'appointments_doctor' %}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Reschedule Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set min date to today
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('appointment_date').min = `${year}-${month}-${day}`;
+        
+        // Handle date changes - in a real app, this would trigger an AJAX call to get available slots
+        document.getElementById('appointment_date').addEventListener('change', function() {
+            const date = this.value;
+            const doctorId = '{{ appointment.doctor_name }}';
+            
+            // You would typically make an AJAX call here to get available slots
+            // For now, we'll leave it as is since your available_slots are provided by the view
+        });
+    });
+</script>
+{% endblock %}

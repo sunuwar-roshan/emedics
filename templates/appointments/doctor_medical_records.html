@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container mt-4">
+        <h2>Patient Medical Records</h2>
+        <p class="text-muted">View medical records for patients you have treated</p>
+        <hr>
+
+        <!-- Search and filter options -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="patient_search" class="form-label">Search Patient</label>
+                        <input type="text" class="form-control" id="patient_search" name="patient_search" placeholder="Name or Email" value="{{ request.GET.patient_search }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_from" class="form-label">Date From</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="{{ request.GET.date_from }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_to" class="form-label">Date To</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="{{ request.GET.date_to }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if medical_records %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Date</th>
+                            <th>Diagnosis</th>
+                            <th>Treatment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in medical_records %}
+                        <tr>
+                            <td>{{ record.patient_name }}</td>
+                            <td>{{ record.date_created|date:"M d, Y" }}</td>
+                            <td>{{ record.diagnosis }}</td>
+                            <td>{{ record.treatment }}</td>
+                            <td>
+                                <span class="badge bg-{% if record.status == 'active' %}primary{% elif record.status == 'resolved' %}success{% elif record.status == 'follow_up' %}warning{% else %}secondary{% endif %}">
+                                    {{ record.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'view_medical_record' record.id %}" class="btn btn-outline-primary">View</a>
+                                    <a href="{% url 'edit_medical_record' record.id %}" class="btn btn-outline-secondary">Edit</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if medical_records.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if medical_records.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ medical_records.previous_page_number }}{% if request.GET.patient_search %}&patient_search={{ request.GET.patient_search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                    {% endif %}
+
+                    {% for i in medical_records.paginator.page_range %}
+                        {% if medical_records.number == i %}
+                            <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% if request.GET.patient_search %}&patient_search={{ request.GET.patient_search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if medical_records.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ medical_records.next_page_number }}{% if request.GET.patient_search %}&patient_search={{ request.GET.patient_search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> No medical records found. 
+                {% if request.GET.patient_search or request.GET.date_from or request.GET.date_to %}
+                    Try adjusting your search filters.
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Add new record button -->
+        <div class="text-end mt-4">
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-1"></i> Add New Record
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert-dismissible').fadeOut('slow');
+        }, 5000);
+    });
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logout</title>
+</head>
+<body>
+    <h2>Logout</h2>
+    <p>Are you sure you want to logout?</p>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    <br>
+    <a href="{% url 'home' %}">Cancel</a>
+</body>
+</html>

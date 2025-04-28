@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container mt-4">
+        <h2>Complete Appointment</h2>
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Appointment Details</h5>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="alert alert-info">
+                    <p class="mb-0">You are completing the appointment with <strong>{{ appointment.patient_name }}</strong> on <strong>{{ appointment.appointment_date }}</strong> at <strong>{{ appointment.get_time_slot_display }}</strong>.</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Appointment Notes</label>
+                        <textarea name="notes" id="notes" class="form-control" rows="3">{{ appointment.notes }}</textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="create_medical_record" id="create_medical_record">
+                            <label class="form-check-label" for="create_medical_record">
+                                Create a medical record for this appointment
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="medical_record_section" style="display: none;">
+                        <hr>
+                        <h5 class="mb-3">Medical Record Information</h5>
+                        
+                        <div class="mb-3">
+                            <label for="diagnosis" class="form-label">Diagnosis</label>
+                            <textarea name="diagnosis" id="diagnosis" class="form-control" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="treatment" class="form-label">Treatment</label>
+                            <textarea name="treatment" id="treatment" class="form-control" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="medical_notes" class="form-label">Additional Notes</label>
+                            <textarea name="medical_notes" id="medical_notes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'appointments_doctor' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Complete Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Show/hide medical record section based on checkbox
+        $('#create_medical_record').change(function() {
+            if($(this).is(':checked')) {
+                $('#medical_record_section').show();
+            } else {
+                $('#medical_record_section').hide();
+            }
+        });
+    });
+</script>
+{% endblock %}
