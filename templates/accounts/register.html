@@ -8,60 +8,99 @@
             <h3>Create Your EMedic Account</h3>
             <p>Join our healthcare platform for better care coordination</p>
         </div>
+        
         {% if messages %}
             {% for message in messages %}
-                <p class="text-danger">{{ message }}</p>
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             {% endfor %}
         {% endif %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <form method="POST" action="{% url 'register' %}" id="registrationForm" enctype="multipart/form-data">
             {% csrf_token %}
+            
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" name="username" required>
+                <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" name="username" value="{{ form.username.value|default:'' }}" required>
+                {% if form.username.errors %}
+                    <div class="invalid-feedback">{{ form.username.errors|join:", " }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" name="email" required>
+                <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" name="email" value="{{ form.email.value|default:'' }}" required>
+                {% if form.email.errors %}
+                    <div class="invalid-feedback">{{ form.email.errors|join:", " }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="phone" class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" name="phone" required>
+                <input type="tel" class="form-control {% if form.phone.errors %}is-invalid{% endif %}" name="phone" value="{{ form.phone.value|default:'' }}" required>
+                {% if form.phone.errors %}
+                    <div class="invalid-feedback">{{ form.phone.errors|join:", " }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="photo" class="form-label">Upload Photo</label>
-                <input type="file" class="form-control" name="photo" accept="image/*" required>
+                <input type="file" class="form-control {% if form.photo.errors %}is-invalid{% endif %}" name="photo" accept="image/*" required>
+                {% if form.photo.errors %}
+                    <div class="invalid-feedback">{{ form.photo.errors|join:", " }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="user_type" class="form-label">User Type</label>
-                <select class="form-select" name="user_type" id="userType" required>
+                <select class="form-select {% if form.user_type.errors %}is-invalid{% endif %}" name="user_type" id="userType" required>
                     <option value="">Select User Type</option>
-                    <option value="patient">Patient</option>
-                    <option value="doctor">Doctor</option>
+                    <option value="patient" {% if form.user_type.value == 'patient' %}selected{% endif %}>Patient</option>
+                    <option value="doctor" {% if form.user_type.value == 'doctor' %}selected{% endif %}>Doctor</option>
                 </select>
+                {% if form.user_type.errors %}
+                    <div class="invalid-feedback">{{ form.user_type.errors|join:", " }}</div>
+                {% endif %}
             </div>
             
             <!-- Doctor Fields -->
             <div class="doctor-fields" id="doctorFields">
                 <div class="mb-3">
                     <label for="specialization" class="form-label">Specialization</label>
-                    <select class="form-select" name="specialization">
+                    <select class="form-select {% if form.specialization.errors %}is-invalid{% endif %}" name="specialization">
                         <option value="">Select Specialization</option>
-                        <option value="Cardiology">Cardiology</option>
-                        <option value="Dermatology">Dermatology</option>
-                        <option value="Endocrinology">Endocrinology</option>
-                        <option value="Gastroenterology">Gastroenterology</option>
-                        <option value="Neurology">Neurology</option>
-                        <option value="Oncology">Oncology</option>
-                        <option value="Orthopedics">Orthopedics</option>
-                        <option value="Pediatrics">Pediatrics</option>
-                        <option value="Psychiatry">Psychiatry</option>
-                        <option value="Pulmonology">Pulmonology</option>
-                        <option value="Rheumatology">Rheumatology</option>
+                        <option value="Cardiology" {% if form.specialization.value == 'Cardiology' %}selected{% endif %}>Cardiology</option>
+                        <option value="Dermatology" {% if form.specialization.value == 'Dermatology' %}selected{% endif %}>Dermatology</option>
+                        <option value="Endocrinology" {% if form.specialization.value == 'Endocrinology' %}selected{% endif %}>Endocrinology</option>
+                        <option value="Gastroenterology" {% if form.specialization.value == 'Gastroenterology' %}selected{% endif %}>Gastroenterology</option>
+                        <option value="Neurology" {% if form.specialization.value == 'Neurology' %}selected{% endif %}>Neurology</option>
+                        <option value="Oncology" {% if form.specialization.value == 'Oncology' %}selected{% endif %}>Oncology</option>
+                        <option value="Orthopedics" {% if form.specialization.value == 'Orthopedics' %}selected{% endif %}>Orthopedics</option>
+                        <option value="Pediatrics" {% if form.specialization.value == 'Pediatrics' %}selected{% endif %}>Pediatrics</option>
+                        <option value="Psychiatry" {% if form.specialization.value == 'Psychiatry' %}selected{% endif %}>Psychiatry</option>
+                        <option value="Pulmonology" {% if form.specialization.value == 'Pulmonology' %}selected{% endif %}>Pulmonology</option>
+                        <option value="Rheumatology" {% if form.specialization.value == 'Rheumatology' %}selected{% endif %}>Rheumatology</option>
                     </select>
+                    {% if form.specialization.errors %}
+                        <div class="invalid-feedback">{{ form.specialization.errors|join:", " }}</div>
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="license_number" class="form-label">License Number</label>
-                    <input type="text" class="form-control" name="license_number">
+                    <input type="text" class="form-control {% if form.license_number.errors %}is-invalid{% endif %}" name="license_number" value="{{ form.license_number.value|default:'' }}">
+                    {% if form.license_number.errors %}
+                        <div class="invalid-feedback">{{ form.license_number.errors|join:", " }}</div>
+                    {% endif %}
                 </div>
             </div>
             
@@ -69,25 +108,37 @@
             <div class="patient-fields" id="patientFields">
                 <div class="mb-3">
                     <label for="date_of_birth" class="form-label">Date of Birth</label>
-                    <input type="date" class="form-control" name="date_of_birth">
+                    <input type="date" class="form-control {% if form.date_of_birth.errors %}is-invalid{% endif %}" name="date_of_birth" value="{{ form.date_of_birth.value|date:'Y-m-d'|default:'' }}">
+                    {% if form.date_of_birth.errors %}
+                        <div class="invalid-feedback">{{ form.date_of_birth.errors|join:", " }}</div>
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="gender" class="form-label">Gender</label>
-                    <select class="form-select" name="gender">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
+                    <select class="form-select {% if form.gender.errors %}is-invalid{% endif %}" name="gender">
+                        <option value="male" {% if form.gender.value == 'male' %}selected{% endif %}>Male</option>
+                        <option value="female" {% if form.gender.value == 'female' %}selected{% endif %}>Female</option>
+                        <option value="other" {% if form.gender.value == 'other' %}selected{% endif %}>Other</option>
                     </select>
+                    {% if form.gender.errors %}
+                        <div class="invalid-feedback">{{ form.gender.errors|join:", " }}</div>
+                    {% endif %}
                 </div>
             </div>
             
             <div class="mb-3">
                 <label for="password1" class="form-label">Password</label>
-                <input type="password" class="form-control" name="password1" required>
+                <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" name="password1" required>
+                {% if form.password1.errors %}
+                    <div class="invalid-feedback">{{ form.password1.errors|join:", " }}</div>
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="password2" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" name="password2" required>
+                <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" name="password2" required>
+                {% if form.password2.errors %}
+                    <div class="invalid-feedback">{{ form.password2.errors|join:", " }}</div>
+                {% endif %}
             </div>
             <button type="submit" class="btn btn-primary">Create Account</button>
         </form>

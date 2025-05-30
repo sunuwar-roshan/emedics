@@ -11,7 +11,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     # Doctor-specific fields
     specialization = forms.CharField(required=False)
-    license_number = forms.CharField(required=False)
+    license_number = forms.CharField(required=False)  # Made optional
 
     # Patient-specific fields
     date_of_birth = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
@@ -23,6 +23,23 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ['username', 'email', 'phone', 'street_address', 'city', 'photo', 
                   'user_type', 'specialization', 'license_number', 'date_of_birth', 
                   'gender', 'emergency_contact_number', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove password validation help texts
+        self.fields['password1'].help_text = ''
+        self.fields['password2'].help_text = ''
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        user_type = cleaned_data.get('user_type')
+        
+        if user_type == 'doctor':
+            specialization = cleaned_data.get('specialization')
+            if not specialization:
+                self.add_error('specialization', 'Specialization is required for doctors')
+                
+        return cleaned_data
 
 class ProfileEditForm(forms.ModelForm):
     class Meta:

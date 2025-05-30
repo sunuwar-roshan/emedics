@@ -1,241 +1,301 @@
 {% extends 'base.html' %}
-{% block content %}
+{% load static %}
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Stats Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <div class="stat-info">
-                    <h4>Today's Appointments</h4>
-                    <p>{{ today_count }}</p>
-                </div>
+{% block extra_css %}
+<style>
+    .welcome-banner {
+        background: linear-gradient(135deg, #1a9cb7 0%, #2a7a8c 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+        border: 1px solid #e0e0e0;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .appointment-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #1a9cb7;
+        transition: all 0.3s;
+    }
+
+    .appointment-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+
+    .chart-container {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>Welcome, Dr. {{ user.get_full_name }}</h2>
+                <p class="mb-0">You have {{ todays_appointments.count }} appointments today</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon green">
+            <div class="col-md-4 text-end">
+                <a href="{% url 'create_appointment' %}" class="btn btn-light">
+                    <i class="fas fa-plus-circle me-2"></i>Add Appointment
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stat-icon bg-primary mx-auto">
                     <i class="fas fa-user-injured"></i>
                 </div>
-                <div class="stat-info">
-                    <h4>Total Patients</h4>
-                    <p>{{ total_patients }}</p>
-                </div>
+                <h3>{{ total_patients }}</h3>
+                <p class="text-muted mb-0">Total Patients</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon orange">
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stat-icon bg-success mx-auto">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3>{{ total_appointments }}</h3>
+                <p class="text-muted mb-0">Total Appointments</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stat-icon bg-warning mx-auto">
                     <i class="fas fa-clock"></i>
                 </div>
-                <div class="stat-info">
-                    <h4>Pending Appointments</h4>
-                    <p>{{ pending_count }}</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon red">
-                    <i class="fas fa-exclamation-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <h4>Urgent Cases</h4>
-                    <p>{{ urgent_cases }}</p>
-                </div>
+                <h3>{{ pending_appointments }}</h3>
+                <p class="text-muted mb-0">Pending Appointments</p>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <div class="stat-icon bg-info mx-auto">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>{{ completion_rate }}%</h3>
+                <p class="text-muted mb-0">Completion Rate</p>
+            </div>
+        </div>
+    </div>
 
-        <div class="row">
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
             <!-- Today's Appointments -->
-            <div class="col-lg-8 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-calendar-day me-2"></i>Today's Appointments</h5>
-                        <a href="{% url 'appointments_doctor' %}" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">View All</a>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Patient</th>
-                                        <th>Time</th>
-                                        <th>Type</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% if today_appointments %}
-                                        {% for appointment in today_appointments %}
-                                            <tr class="patient-row">
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        {% if appointment.patient.photo %}
-                                                            <img src="{{ appointment.patient.photo.url }}" alt="Patient" class="avatar-img me-3">
-                                                        {% else %}
-                                                            <img src="https://ui-avatars.com/api/?name={{ appointment.patient.username|urlencode }}&background=random" alt="Patient" class="avatar-img me-3">
-                                                        {% endif %}
-                                                        <div class="patient-info">
-                                                            <h6>{{ appointment.patient_name }}</h6>
-                                                            <p>{{ appointment.patient_email }}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="appointment-time">{{ appointment.get_time_slot_display }}</td>
-                                                <td>{{ appointment.get_appointment_type_display }}</td>
-                                                <td>
-                                                    {% if appointment.status == 'scheduled' %}
-                                                        <span class="status-badge confirmed">Confirmed</span>
-                                                    {% elif appointment.status == 'pending' %}
-                                                        <span class="status-badge pending">Pending</span>
-                                                    {% elif appointment.status == 'cancelled' %}
-                                                        <span class="status-badge cancelled">Cancelled</span>
-                                                    {% elif appointment.status == 'completed' %}
-                                                        <span class="status-badge completed">Completed</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if appointment.appointment_mediums == 'Online' %}
-                                                        <a href="#" class="btn btn-sm btn-teleconsult me-2">
-                                                            <i class="fas fa-video me-1"></i> Start
-                                                        </a>
-                                                    {% endif %}
-                                                    <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-sm btn-reschedule">
-                                                        <i class="fas fa-calendar-alt me-1"></i> Reschedule
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="5" class="text-center py-4">No appointments scheduled for today.</td>
-                                        </tr>
-                                    {% endif %}
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Today's Appointments</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary">All</button>
+                        <button class="btn btn-sm btn-outline-primary">Pending</button>
+                        <button class="btn btn-sm btn-outline-primary">Completed</button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Weekly Calendar -->
-            <div class="col-lg-4 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-calendar-week me-2"></i>Week at a Glance</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            {% for day in week_data %}
-                                <div class="col-4 mb-2">
-                                    <div class="calendar-day {% if day.is_today %}active{% endif %}">
-                                        <div class="day-name">{{ day.day_name }}</div>
-                                        <div class="day-date">{{ day.day_date }}</div>
-                                        <div class="day-count">{{ day.day_count }} appt</div>
+                <div class="card-body">
+                    {% if todays_appointments %}
+                        {% for appointment in todays_appointments %}
+                            <div class="appointment-card">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        {% if appointment.patient.profile_pic %}
+                                            <img src="{{ appointment.patient.profile_pic.url }}" class="patient-avatar" alt="Patient">
+                                        {% else %}
+                                            <div class="patient-avatar bg-secondary text-white d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col">
+                                        <h6 class="mb-1">{{ appointment.patient.get_full_name }}</h6>
+                                        <p class="mb-0 text-muted">{{ appointment.time|time:"g:i A" }} - {{ appointment.get_appointment_type_display }}</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="status-badge bg-{{ appointment.status|lower }}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="btn-group">
+                                            <a href="{% url 'view_appointment' appointment.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                            <button class="btn btn-sm btn-outline-success">Complete</button>
+                                        </div>
                                     </div>
                                 </div>
-                            {% endfor %}
-                        </div>
-                        
-                        <!-- Keep your tasks section as is or implement tasks if you have that functionality -->
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted my-4">No appointments scheduled for today</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Appointments Chart -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Appointment Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="appointmentsChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="{% url 'appointments_doctor' %}" class="d-block p-3 text-center border rounded text-decoration-none" style="color: var(--dark-color);">
-                                    <i class="fas fa-calendar-plus mb-2" style="font-size: 2rem; color: var(--primary-color);"></i>
-                                    <h6>All Appointments</h6>
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="#" class="d-block p-3 text-center border rounded text-decoration-none" style="color: var(--dark-color);">
-                                    <i class="fas fa-prescription-bottle-alt mb-2" style="font-size: 2rem; color: var(--primary-color);"></i>
-                                    <h6>Write Prescription</h6>
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="#" class="d-block p-3 text-center border rounded text-decoration-none" style="color: var(--dark-color);">
-                                    <i class="fas fa-notes-medical mb-2" style="font-size: 2rem; color: var(--primary-color);"></i>
-                                    <h6>Patient Records</h6>
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="#" class="d-block p-3 text-center border rounded text-decoration-none" style="color: var(--dark-color);">
-                                    <i class="fas fa-file-medical-alt mb-2" style="font-size: 2rem; color: var(--primary-color);"></i>
-                                    <h6>Lab Results</h6>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Recent Patients -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Recent Patients</h5>
+                    <a href="{% url 'patient_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
-            </div>
-        </div>
-
-        <!-- Recent Patients -->
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5><i class="fas fa-user-injured me-2"></i>Recent Patients</h5>
-                        <button class="btn btn-sm" style="background-color: var(--primary-color); color: white;">View All Patients</button>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            {% if past_appointments %}
-
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Patient Info</th>
-                                        <th>Last Visit</th>
-                                        {% comment %} <th>Actions</th> {% endcomment %}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                        {% for patient in past_appointments %}
-                                            <tr class="patient-row">
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        {% if patient.photo %}
-                                                            <img src="{{ patient.photo.url }}" alt="Patient" class="avatar-img me-3">
-                                                        {% else %}
-                                                            <img src="https://ui-avatars.com/api/?name={{ patient.username|urlencode }}&background=random" alt="Patient" class="avatar-img me-3">
-                                                        {% endif %}
-                                                        <div class="patient-info">
-                                                            <h6>{{ patient.patient_name }}</h6>
-                                                            <p>{{ patient.patient_email }}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>{{ patient.appointment_date|default:"Not available" }}</td>
-                                                {% comment %} <td>
-                                                    <button class="btn btn-sm" style="background-color: var(--primary-color); color: white;">
-                                                        <i class="fas fa-file-medical me-1"></i> View Records
-                                                    </button>
-                                                </td> {% endcomment %}
-                                            </tr>
-                                        {% endfor %}
+                <div class="card-body">
+                    {% if recent_patients %}
+                        {% for patient in recent_patients %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0">
+                                    {% if patient.profile_pic %}
+                                        <img src="{{ patient.profile_pic.url }}" class="patient-avatar" alt="Patient">
                                     {% else %}
-                                        <tr>
-                                            <td colspan="3" class="text-center py-4">No recent patients.</td>
-                                        </tr>
+                                        <div class="patient-avatar bg-secondary text-white d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-user"></i>
+                                        </div>
                                     {% endif %}
-                                </tbody>
-                            </table>
-                        </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">{{ patient.get_full_name }}</h6>
+                                    <p class="mb-0 small text-muted">Last visit: {{ patient.last_visit|date:"M d, Y" }}</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="{% url 'patient_detail' patient.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted my-3">No recent patients</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'create_appointment' %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-2"></i>New Appointment
+                        </a>
+                        <a href="{% url 'patient_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-users me-2"></i>View Patients
+                        </a>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fas fa-notes-medical me-2"></i>Create Medical Record
+                        </a>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fas fa-file-prescription me-2"></i>Write Prescription
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Appointments Chart
+    const ctx = document.getElementById('appointmentsChart').getContext('2d');
+    const appointmentsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'Appointments',
+                data: {{ chart_data|safe }},
+                borderColor: '#1a9cb7',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(26, 156, 183, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+{% endblock %}
 {% endblock content %}

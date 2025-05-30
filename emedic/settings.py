@@ -92,9 +92,9 @@ WSGI_APPLICATION = 'emedic.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "emedic",
+        "NAME": "emedic1",
         "USER": "postgres",
-        "PASSWORD": "binit123",
+        "PASSWORD": "lak98033",
         "HOST": "127.0.0.1",
         "PORT": "5432",
     }
@@ -104,20 +104,8 @@ DATABASES = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    # All validators removed - no password restrictions
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -158,4 +146,3 @@ DEFAULT_FROM_EMAIL = 'eMedic <mrbinit43@gmail.com>'
 
 EMAIL_TIMEOUT = 30  # Timeout in seconds
 SERVER_EMAIL = 'mrbinit43@gmail.com'  # For error messages
-

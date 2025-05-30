@@ -55,11 +55,13 @@ class Appointment(models.Model):
         ('no-show', 'No Show'),
     ]
 
-    DOCTORS = CustomUser.objects.filter(user_type = 'doctor').values_list('username', flat=True).distinct()
-    DOCTORS_CHOICES = [(doctor, doctor) for doctor in DOCTORS]
+    def get_doctor_choices():
+        from accounts.models import CustomUser
+        return [(doc.username, doc.username) for doc in CustomUser.objects.filter(user_type='doctor')]
+
     main_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     specialization = models.CharField(max_length=50, choices=SPECIALIZATION_CHOICES)
-    doctor_name = models.CharField(max_length=100, choices=DOCTORS_CHOICES)
+    doctor_name = models.CharField(max_length=100)  
     patient_name = models.CharField(max_length=100)
     patient_email = models.EmailField()
     patient_phone = models.CharField(max_length=20)
@@ -77,7 +79,7 @@ class Appointment(models.Model):
         unique_together = ('doctor_name', 'appointment_date', 'time_slot')
         ordering = ['appointment_date', 'time_slot']
 
-    def str(self):
+    def __str__(self):
         return f"Appointment with Dr. {self.doctor_name} on {self.appointment_date} at {self.get_time_slot_display()}"
 
     def is_past_due(self):
