@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+from appointments.khalti_config import KHALTI_SECRET_KEY, KHALTI_PUBLIC_KEY, APPOINTMENT_AMOUNT
 
 from pathlib import Path
 import os
@@ -27,7 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+KHALTI = {
+    'SECRET_KEY': KHALTI_SECRET_KEY,
+    'PUBLIC_KEY': KHALTI_PUBLIC_KEY,
+    'APPOINTMENT_AMOUNT': APPOINTMENT_AMOUNT
+}
 # Application definition
 
 INSTALLED_APPS = [

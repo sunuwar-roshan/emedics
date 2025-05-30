@@ -72,7 +72,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-
 # PyBuilder
 .pybuilder/
 target/
@@ -171,3 +170,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+appointments/khalti_config_key
+appointments/khalti_config.py

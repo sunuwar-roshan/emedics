@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load appointment_filters %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5>Appointment Details</h5>
+            <p><strong>Doctor:</strong> {{ appointment.doctor_name }}</p>
+            <p><strong>Date:</strong> {{ appointment.appointment_date }}</p>
+            <p><strong>Time:</strong> {{ appointment.time_slot }}</p>
+            <p><strong>Amount:</strong> Rs. {{ AMOUNT|divide:100 }}</p>
+            
+            <button id="payment-button" class="btn btn-primary">Pay with Khalti</button>
+        </div>
+    </div>
+</div>
+
+{% comment %} 36ae31f9f7f8474c805d47115d103c68 {% endcomment %}<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.22.0.0.0/khalti-checkout.iffe.js"></script>
+<script>
+    let config = {
+        "publicKey": "{{ KHALTI_PUBLIC_KEY }}",
+        "productIdentity": "{{ appointment.id }}",
+        "productName": "Doctor Appointment",
+        "productUrl": window.location.origin,
+        "eventHandler": {
+            onSuccess: function(payload) {
+                console.log("Success:", payload);
+                $.ajax({
+                    url: "{% url 'verify_payment' %}",
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    data: {
+                        token: payload.token,
+                        amount: {{ AMOUNT }},
+                        appointment_id: {{ appointment.id }}
+                    },
+                    success: function(response) {
+                        if(response.status === "success") {
+                            window.location.href = "{% url 'appointment_success' %}";
+                        } else {
+                            alert("Payment verification failed!");
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Verification error:", error);
+                        alert("Payment verification failed!");
+                    }
+                });
+            },
+            onError: function(error) {
+                console.error("Payment error:", error);
+                alert("Payment failed!");
+            }
+        }
+    };
+
+    let checkout = new KhaltiCheckout(config);
+    document.getElementById("payment-button").onclick = function() {
+        checkout.show({amount: {{ AMOUNT }}});
+    }
+</script>
+{% endblock %}

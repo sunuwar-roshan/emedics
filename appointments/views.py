@@ -15,31 +15,67 @@ from .models import Appointment
 from .forms import AppointmentForm
 from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
+import requests
+from django.views.decorators.http import require_http_methods
+import json
+from .khalti_config import KHALTI_PUBLIC_KEY, APPOINTMENT_AMOUNT, KHALTI_SECRET_KEY
 
 
 class AppointmentCreateView(CreateView):
-    """Class-based view to create a new appointment"""
     model = Appointment
     form_class = AppointmentForm
     template_name = 'appointments/create_appointment.html'
-    success_url = reverse_lazy('appointment_history')
     
     def form_valid(self, form):
-        """Handle successful form validation"""
-        # You could add custom logic here before saving
-        appointment = form.save(commit=False)
-        appointment.patient_email = self.request.user.email
-        appointment.main_user = self.request.user  # Set the main user to the logged-in user
+        # Save appointment with pending payment status
+        self.object = form.save(commit=False)
+        self.object.payment_status = 'pending'
+        self.object.save()
+        
+        # Redirect to payment view
+        return redirect('appointment_payment', appointment_id=self.object.id)
 
-        appointment.save()
-        messages.success(self.request, 'Appointment booked successfully!')
-        return super().form_valid(form)
-    
-    def form_invalid(self, form):
-        """Handle form validation errors"""
-        messages.error(self.request, 'There was an error booking your appointment. Please check the form.')
-        return super().form_invalid(form)
+def payment_view(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    context = {
+        'appointment': appointment,
+        'AMOUNT': APPOINTMENT_AMOUNT,  # This will be 1000 (Rs. 10 in paisa)
+        # 'KHALTI_PUBLIC_KEY': KHALTI_PUBLIC_KEY,
+        'KHALTI_PUBLIC_KEY': "36ae31f9f7f8474c805d47115d103c68",
+    }
+    return render(request, 'appointments/payment.html', context)
 
+def appointment_success(request):
+    return render(request, 'appointments/appointment_success.html')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def verify_payment(request):
+    if request.method == "POST":
+        token = request.POST.get("token")
+        amount = request.POST.get("amount")
+        
+        url = "https://test-api.khalti.com/v2/epayment/verify/"  # Test sandbox URL
+        payload = {
+            "token": token,
+            "amount": amount
+        }
+        headers = {
+            "Authorization": f"Key {KHALTI_SECRET_KEY}"
+        }
+        
+        response = requests.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            # Payment successful
+            appointment_id = request.POST.get("appointment_id")
+            appointment = Appointment.objects.get(id=appointment_id)
+            appointment.payment_status = 'completed'
+            appointment.save()
+            return JsonResponse({"status": "success"})
+        
+        return JsonResponse({"status": "failed"})
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GetDoctorsView(View):

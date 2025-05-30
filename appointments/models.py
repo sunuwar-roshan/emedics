@@ -5,6 +5,17 @@ from accounts.models import CustomUser
 
 class Appointment(models.Model):
     """Model for storing appointment information"""
+    PAYMENT_STATUS = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed')
+    ]
+    payment_status = models.CharField(
+        max_length=20, 
+        choices=PAYMENT_STATUS,
+        default='pending'
+    )
+    payment_token = models.CharField(max_length=100, null=True, blank=True)
     TIME_SLOTS = [
         ('09:00', '09:00 AM - 09:30 AM'),
         ('09:30', '09:30 AM - 10:00 AM'),

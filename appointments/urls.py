@@ -15,5 +15,11 @@ urlpatterns = [
     path('doctor/medical-records/', views.DoctorMedicalRecordsView.as_view(), name='doctor_medical_records'),
     # path('medical-records/view/<int:pk>/', views.ViewMedicalRecordView.as_view(), name='view_medical_record'),
     # path('medical-records/edit/<int:pk>/', views.EditMedicalRecordView.as_view(), name='edit_medical_record'),
-    
+    path('create/', views.AppointmentCreateView.as_view(), name='create_appointment'),
+    path('payment/<int:appointment_id>/', views.payment_view, name='appointment_payment'),
+    path('verify-payment/', views.verify_payment, name='verify_payment'),
+    path('success/', views.appointment_success, name='appointment_success'),
+
+
+
 ]
