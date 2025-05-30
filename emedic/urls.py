@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('appointment/', include('appointments.urls')),
+    path('postman/', include('postman.urls')),
+    path('messaging/', include('messaging.urls'))
 ]
 
 # Serve static and media files in development

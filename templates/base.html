@@ -435,13 +435,14 @@
         {% if user.user_type == 'doctor' %}
         <a href="{% url 'doctor_dashboard' %}" class="sidebar-link active"><i class="fas fa-chart-line"></i>Doctor Dashboard</a>
         <a href="{% url 'appointments_doctor'%}" class="sidebar-link"><i class="fas fa-calendar-alt"></i> Appointments</a>
+        <a href="{% url 'messaging:conversation_list' %}" class="sidebar-link"><i class="fas fa-video"></i> Chat</a>
         <a href="#" class="sidebar-link"><i class="fas fa-user-injured"></i> Patients</a>
         <a href="{% url 'doctor_medical_records' %}" class="sidebar-link"><i class="fas fa-notes-medical"></i> Medical Records</a>
         {% else %}
-        <a href="{% url 'patient_dashboard' %}" class="sidebar-link active"><i class="fas fa-chart-line"></i>Patient Dashboard</a>
-        <a href="{% url 'create_appointment' %}" class="sidebar-link"><i class="fas fa-calendar-check"></i> Book Appointment</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-video"></i> Telecommunication</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-comment-medical"></i> Feedback</a>
+        <a href="{% url 'patient_dashboard' %}" class="sidebar-link "><i class="fas fa-chart-line"></i>Patient Dashboard</a>
+        <a href="{% url 'create_appointment' %}" class="sidebar-link active"><i class="fas fa-calendar-check"></i> Book Appointment</a>
+        <a href="{% url 'messaging:conversation_list' %}" class="sidebar-link"><i class="fas fa-video"></i> Chat</a>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mrbinit43@gmail.com&su=eMedic Feedback" target="_blank" class="sidebar-link"><i class="fas fa-comment-medical"></i> Feedback</a>
         <a href="{% url 'appointment_history' %}" class="sidebar-link"><i class="fas fa-history"></i> Appointment History</a>
         <a href="#" class="sidebar-link"><i class="fas fa-file-medical"></i> Medical Records</a>
         <a href="{% url 'profile_settings' %}" class="sidebar-link"><i class="fas fa-cog"></i> Settings</a>
