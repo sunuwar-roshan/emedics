@@ -13,69 +13,89 @@ from .models import MedicalRecord
 from django.db.models import Q
 from .models import Appointment
 from .forms import AppointmentForm
-from accounts.models import CustomUser
 from django.contrib.auth.decorators import login_required
-import requests
-from django.views.decorators.http import require_http_methods
-import json
-from .khalti_config import KHALTI_PUBLIC_KEY, APPOINTMENT_AMOUNT, KHALTI_SECRET_KEY
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import send_mail
 
+# @method_decorator(csrf_exempt, name='dispatch')
+# class AppointmentCreateView(CreateView):
+#     """Class-based view to create a new appointment"""
+#     model = Appointment
+#     form_class = AppointmentForm
+#     template_name = 'appointments/create_appointment.html'
+#     success_url = reverse_lazy('appointment_history')
+    
+#     def form_valid(self, form):
+#         """Handle successful form validation"""
+#         # You could add custom logic here before saving
+#         appointment = form.save(commit=False)
+#         appointment.patient_email = self.request.user.email
+#         appointment.main_user = self.request.user  # Set the main user to the logged-in user
 
+#         appointment.save()
+#         messages.success(self.request, 'Appointment booked successfully!')
+#         return super().form_valid(form)
+    
+#     def form_invalid(self, form):
+#         """Handle form validation errors"""
+#         messages.error(self.request, 'There was an error booking your appointment. Please check the form.')
+#         return super().form_invalid(form)
+@method_decorator(csrf_exempt, name='dispatch')
 class AppointmentCreateView(CreateView):
+    """Class-based view to create a new appointment"""
     model = Appointment
     form_class = AppointmentForm
     template_name = 'appointments/create_appointment.html'
+    success_url = reverse_lazy('appointment_history')
     
-    def form_valid(self, form):
-        # Save appointment with pending payment status
-        self.object = form.save(commit=False)
-        self.object.payment_status = 'pending'
-        self.object.save()
+    def form_valid(self, form):  # <- Notice the proper indentation
+        """Handle successful form validation"""
+        # Save the appointment first
+        appointment = form.save(commit=False)
+        appointment.patient_email = self.request.user.email
+        appointment.main_user = self.request.user
+        appointment.save()
         
-        # Redirect to payment view
-        return redirect('appointment_payment', appointment_id=self.object.id)
+        # Send a simple email without template
+        try:
+            from django.core.mail import send_mail
+            
+            # Create a simple text message
+            message = f"""
+Hello {appointment.patient_name},
 
-def payment_view(request, appointment_id):
-    appointment = get_object_or_404(Appointment, id=appointment_id)
-    context = {
-        'appointment': appointment,
-        'AMOUNT': APPOINTMENT_AMOUNT,  # This will be 1000 (Rs. 10 in paisa)
-        # 'KHALTI_PUBLIC_KEY': KHALTI_PUBLIC_KEY,
-        'KHALTI_PUBLIC_KEY': "36ae31f9f7f8474c805d47115d103c68",
-    }
-    return render(request, 'appointments/payment.html', context)
+Your appointment with Dr. {appointment.doctor_name} has been confirmed for {appointment.appointment_date}.
 
-def appointment_success(request):
-    return render(request, 'appointments/appointment_success.html')
+Thank you for using eMedic.
 
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def verify_payment(request):
-    if request.method == "POST":
-        token = request.POST.get("token")
-        amount = request.POST.get("amount")
+Best regards,
+The eMedic Team
+            """
+            
+            # Send without HTML template
+            send_mail(
+                subject='Your eMedic Appointment Confirmation',
+                message=message,
+                from_email=None,  # Uses DEFAULT_FROM_EMAIL
+                recipient_list=[appointment.patient_email],
+                fail_silently=False,
+            )
+            
+            messages.success(self.request, 'Appointment booked successfully! A confirmation email has been sent to your email address.')
+        except Exception as e:
+            import traceback
+            print(f"Email error: {str(e)}")
+            print(traceback.format_exc())
+            messages.success(self.request, 'Appointment booked successfully! However, there was an issue sending the confirmation email.')
         
-        url = "https://test-api.khalti.com/v2/epayment/verify/"  # Test sandbox URL
-        payload = {
-            "token": token,
-            "amount": amount
-        }
-        headers = {
-            "Authorization": f"Key {KHALTI_SECRET_KEY}"
-        }
-        
-        response = requests.post(url, json=payload, headers=headers)
-        
-        if response.status_code == 200:
-            # Payment successful
-            appointment_id = request.POST.get("appointment_id")
-            appointment = Appointment.objects.get(id=appointment_id)
-            appointment.payment_status = 'completed'
-            appointment.save()
-            return JsonResponse({"status": "success"})
-        
-        return JsonResponse({"status": "failed"})
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        """Handle form validation errors"""
+        messages.error(self.request, 'There was an error booking your appointment. Please check the form.')
+        return super().form_invalid(form)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GetDoctorsView(View):
@@ -96,6 +116,7 @@ class GetDoctorsView(View):
 
 
 # For checking appointment availability
+@method_decorator(csrf_exempt, name='dispatch')
 class CheckAvailabilityView(View):
     """AJAX view to check appointment availability"""
     def post(self, request):
@@ -116,7 +137,7 @@ class CheckAvailabilityView(View):
         
         return JsonResponse({'available_slots': available_slots})
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class AppointmentHistoryView(LoginRequiredMixin, ListView):
     """Class-based view to display appointment history for the logged-in user only"""
     model = Appointment
@@ -130,7 +151,7 @@ class AppointmentHistoryView(LoginRequiredMixin, ListView):
             main_user = self.request.user.id
         ).order_by('-appointment_date', '-time_slot')
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class DoctorAppointmentsView(LoginRequiredMixin, ListView):
     """Class-based view to display appointments for the logged-in doctor only"""
     model = Appointment
@@ -217,7 +238,7 @@ def view_appointment(request, appointment_id):
         'appointment': appointment
     })
 
-
+@csrf_exempt
 def complete_appointment(request, appointment_id):
     """Mark an appointment as completed"""
     appointment = get_object_or_404(Appointment, id=appointment_id)
@@ -246,7 +267,7 @@ def complete_appointment(request, appointment_id):
         'appointment': appointment
     })
 
-
+@csrf_exempt
 def cancel_appointment(request, appointment_id):
     """Cancel an appointment"""
     appointment = get_object_or_404(Appointment, id=appointment_id)
@@ -275,6 +296,7 @@ def cancel_appointment(request, appointment_id):
         'appointment': appointment
     })
 
+@csrf_exempt
 def reschedule_appointment(request, appointment_id):
     """Reschedule an appointment"""
     appointment = get_object_or_404(Appointment, id=appointment_id)

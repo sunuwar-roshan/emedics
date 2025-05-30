@@ -96,3 +96,5 @@ def user_logout(request):
     logout(request)
     return redirect('home')  # Ensure 'home' is defined in your urls.py
 
+def user_book_appointment(request):
+    return render(request, 'accounts/book_appointment.html')

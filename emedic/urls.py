@@ -20,10 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('appointment/', include('appointments.urls')),
+    path('postman/', include('postman.urls')),
+    path('messaging/', include('messaging.urls'))
 ]
 
 # if settings.DEBUG:

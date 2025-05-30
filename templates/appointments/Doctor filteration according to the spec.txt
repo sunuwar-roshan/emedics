@@ -1,0 +1,6 @@
+Doctor filteration according to the specialization
+Feedback System
+Payment
+Report Generation
+Health Record ManagementNotification via mail
+Chat

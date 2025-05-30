@@ -14,6 +14,7 @@
                         <th>Doctor</th>
                         <th>Specialization</th>
                         <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,6 +25,16 @@
                         <td>{{ appointment.doctor_name }}</td>
                         <td>{{ appointment.specialization }}</td>
                         <td>{{ appointment.get_status_display }}</td>
+                        <td>
+                            {% if appointment.status == 'completed' or appointment.status == 'Completed' %}
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mrbinit43@gmail.com&su=Feedback for Dr. {{ appointment.doctor_name }}" 
+                                   target="_blank" class="btn btn-sm btn-primary">
+                                    Send Feedback
+                                </a>
+                            {% else %}
+                                <span class="text-muted small">Feedback available after appointment</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -5,17 +5,6 @@ from accounts.models import CustomUser
 
 class Appointment(models.Model):
     """Model for storing appointment information"""
-    PAYMENT_STATUS = [
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed')
-    ]
-    payment_status = models.CharField(
-        max_length=20, 
-        choices=PAYMENT_STATUS,
-        default='pending'
-    )
-    payment_token = models.CharField(max_length=100, null=True, blank=True)
     TIME_SLOTS = [
         ('09:00', '09:00 AM - 09:30 AM'),
         ('09:30', '09:30 AM - 10:00 AM'),
@@ -66,17 +55,11 @@ class Appointment(models.Model):
         ('no-show', 'No Show'),
     ]
 
-    # DOCTORS = CustomUser.objects.filter(user_type = 'doctor').values_list('username', flat=True).distinct()
-    # DOCTORS_CHOICES = [(doctor, doctor) for doctor in DOCTORS]
-    def get_doctor_choices(self):
-        """Dynamically fetch doctor choices at runtime"""
-        doctors = CustomUser.objects.filter(user_type='doctor').values_list('username', flat=True).distinct()
-        return [(doctor, doctor) for doctor in doctors]
-    
+    DOCTORS = CustomUser.objects.filter(user_type = 'doctor').values_list('username', flat=True).distinct()
+    DOCTORS_CHOICES = [(doctor, doctor) for doctor in DOCTORS]
     main_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     specialization = models.CharField(max_length=50, choices=SPECIALIZATION_CHOICES)
-    # doctor_name = models.CharField(max_length=100, choices=DOCTORS_CHOICES)
-    doctor_name = models.CharField(max_length=100, blank=True, null=True)
+    doctor_name = models.CharField(max_length=100, choices=DOCTORS_CHOICES)
     patient_name = models.CharField(max_length=100)
     patient_email = models.EmailField()
     patient_phone = models.CharField(max_length=20)
@@ -97,12 +80,6 @@ class Appointment(models.Model):
     def str(self):
         return f"Appointment with Dr. {self.doctor_name} on {self.appointment_date} at {self.get_time_slot_display()}"
 
-    def save(self, *args, **kwargs):
-        """Ensure doctor_name is valid before saving"""
-        if self.doctor_name not in dict(self.get_doctor_choices()):
-            raise ValueError("Invalid doctor selected.")
-        super().save(*args, **kwargs)
-        
     def is_past_due(self):
         """Check if appointment is in the past"""
         return self.appointment_date < timezone.now().date() or \
