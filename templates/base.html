@@ -1,9 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMedic - Patient Dashboard</title>
+    <title>{% block title %}EMedic - Patient Dashboard{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -405,13 +410,13 @@
                         {% if user.photo %}
                             <img src="{{ user.photo.url }}" alt="User" class="rounded-circle" width="32">
                         {% else %}
-                            <img src="/api/placeholder/40/40" alt="User" class="rounded-circle" width="32">
+                            <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=random" alt="User" class="rounded-circle" width="32">
                         {% endif %}
                         <span class="ms-2 d-none d-lg-inline">{{ user.username }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'profile_settings' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'profile_settings' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
@@ -439,7 +444,7 @@
         <a href="#" class="sidebar-link"><i class="fas fa-comment-medical"></i> Feedback</a>
         <a href="{% url 'appointment_history' %}" class="sidebar-link"><i class="fas fa-history"></i> Appointment History</a>
         <a href="#" class="sidebar-link"><i class="fas fa-file-medical"></i> Medical Records</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-cog"></i> Settings</a>
+        <a href="{% url 'profile_settings' %}" class="sidebar-link"><i class="fas fa-cog"></i> Settings</a>
         <a href="#" class="sidebar-link"><i class="fas fa-question-circle"></i> Help</a>
         
         {% endif %}

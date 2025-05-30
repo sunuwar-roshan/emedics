@@ -465,3 +465,75 @@ class DoctorMedicalRecordsView(LoginRequiredMixin, ListView):
         return render(request, 'appointments/complete_appointment.html', {
             'appointment': appointment
         })
+
+from django.shortcuts import render
+from django.utils import timezone
+from datetime import datetime, timedelta
+from django.db.models import Count
+
+from accounts.models import CustomUser
+from .models import Appointment, MedicalRecord
+
+def home(request):
+    """Home page view with dashboard statistics"""
+    today = timezone.now().date()
+    
+    # Get today's appointments
+    daily_appointments = Appointment.objects.filter(
+        appointment_date=today
+    ).count()
+    
+    # Get total patients (users with 'patient' user type)
+    total_patients = CustomUser.objects.filter(
+        user_type='patient'
+    ).count()
+    
+    # Get total doctors (users with 'doctor' user type)
+    total_doctors = CustomUser.objects.filter(
+        user_type='doctor'
+    ).count()
+    
+    # Get total specializations/departments
+    total_specializations = Appointment.objects.values('specialization').distinct().count()
+    
+    # Get upcoming appointments for this week
+    one_week_later = today + timedelta(days=7)
+    upcoming_appointments = Appointment.objects.filter(
+        appointment_date__gte=today,
+        appointment_date__lte=one_week_later,
+        status='scheduled'
+    ).order_by('appointment_date', 'time_slot')[:5]  # Limit to 5 for display
+    
+    # Get recent appointments
+    recent_appointments = Appointment.objects.filter(
+        status='completed'
+    ).order_by('-appointment_date', '-time_slot')[:5]  # Most recent first, limit to 5
+    
+    # Current ER wait time (simulated - you would replace this with actual data if available)
+    current_er_wait = 15
+    
+    # Available beds (simulated - you would replace this with actual data if available)
+    available_beds = 43
+    total_beds = 120
+    
+    # Surgeries today (simulated - you would replace this with actual data if available)
+    surgeries_today = 12
+    
+    # Staff on duty (simulated - you would replace this with actual data if available)
+    staff_on_duty = 78
+    
+    context = {
+        'daily_appointments': daily_appointments,
+        'total_patients': total_patients,
+        'total_doctors': total_doctors,
+        'total_specializations': total_specializations,
+        'upcoming_appointments': upcoming_appointments,
+        'recent_appointments': recent_appointments,
+        'current_er_wait': current_er_wait,
+        'available_beds': available_beds,
+        'total_beds': total_beds,
+        'surgeries_today': surgeries_today,
+        'staff_on_duty': staff_on_duty,
+    }
+    
+    return render(request, 'home/home.html', context)

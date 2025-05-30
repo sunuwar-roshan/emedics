@@ -1,8 +1,15 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from .forms import CustomUserCreationForm
 from django.contrib.auth import logout
+from django.utils import timezone
+from datetime import datetime, timedelta
+from django.db.models import Count, Q
+from django.contrib.auth.decorators import login_required
+import random
+
+from .forms import CustomUserCreationForm, ProfileEditForm
+from appointments.models import Appointment
 
 def user_login(request):
     if request.method == 'POST':
@@ -87,7 +94,116 @@ def doctor_dashboard(request):
     return render(request, 'accounts/doctor_dashboard.html')
 
 def patient_dashboard(request):
-    return render(request, 'accounts/patient_dashboard.html')
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    # Get upcoming appointments (today and future)
+    upcoming_appointments = Appointment.objects.filter(
+        patient_email=request.user.email,
+        appointment_date__gte=timezone.now().date(),
+        status='scheduled'  # Only show confirmed appointments
+    ).order_by('appointment_date', 'time_slot')[:5]  # Limit to 5 upcoming
+    
+    # Get recent activities (appointments from last 30 days)
+    thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+    recent_activities = Appointment.objects.filter(
+        patient_email=request.user.email,
+        appointment_date__gte=thirty_days_ago
+    ).order_by('-appointment_date', '-time_slot')[:5]
+    
+    # List of 10 health tips
+    all_health_tips = [
+        {
+            'title': 'Stay Hydrated',
+            'description': 'Drink at least 8 glasses of water daily to maintain proper hydration and support body functions.',
+            'category': 'Hydration'
+        },
+        {
+            'title': 'Regular Exercise',
+            'description': 'Aim for at least 30 minutes of moderate exercise most days of the week.',
+            'category': 'Fitness'
+        },
+        {
+            'title': 'Balanced Diet',
+            'description': 'Include a variety of fruits, vegetables, and whole grains in your meals.',
+            'category': 'Nutrition'
+        },
+        {
+            'title': 'Adequate Sleep',
+            'description': 'Get 7-9 hours of quality sleep each night for optimal health.',
+            'category': 'Wellness'
+        },
+        {
+            'title': 'Stress Management',
+            'description': 'Practice meditation or deep breathing exercises to reduce stress.',
+            'category': 'Mental Health'
+        },
+        {
+            'title': 'Regular Check-ups',
+            'description': 'Schedule regular health check-ups and screenings as recommended.',
+            'category': 'Prevention'
+        },
+        {
+            'title': 'Hand Hygiene',
+            'description': 'Wash your hands frequently to prevent the spread of germs.',
+            'category': 'Hygiene'
+        },
+        {
+            'title': 'Limit Sugar Intake',
+            'description': 'Reduce consumption of sugary drinks and snacks for better health.',
+            'category': 'Nutrition'
+        },
+        {
+            'title': 'Stay Active',
+            'description': 'Take short breaks to stand and move if you sit for long periods.',
+            'category': 'Fitness'
+        },
+        {
+            'title': 'Mindful Eating',
+            'description': 'Eat slowly and pay attention to your food to prevent overeating.',
+            'category': 'Nutrition'
+        }
+    ]
+    
+    # Select 3 random health tips
+    health_tips = random.sample(all_health_tips, min(3, len(all_health_tips)))
+    
+    context = {
+        'upcoming_appointments': upcoming_appointments,
+        'recent_activities': recent_activities,
+        'upcoming_count': upcoming_appointments.count(),
+        'medical_records_count': 3,  # Placeholder
+        'active_medications_count': 2,  # Placeholder
+        'test_results_count': 1,  # Placeholder
+        'health_metrics': {
+            'last_bp': '120/80 mmHg',
+            'last_weight': '68 kg',
+            'last_glucose': '95 mg/dL',
+            'last_visit': '2025-05-15'
+        },
+        'quick_actions': [
+            {'icon': 'calendar-plus', 'title': 'Book Appointment', 'url': 'create_appointment', 'enabled': True},
+            {'icon': 'file-prescription', 'title': 'Request Refill', 'url': '#', 'enabled': False},
+            {'icon': 'video', 'title': 'Start Telehealth', 'url': '#', 'enabled': False},
+            {'icon': 'envelope', 'title': 'Message Doctor', 'url': '#', 'enabled': False},
+        ],
+        'health_tips': health_tips  # Add health tips to context
+    }
+    
+    return render(request, 'accounts/patient_dashboard.html', context)
+
+@login_required
+def profile_settings(request):
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile_settings')
+    else:
+        form = ProfileEditForm(instance=request.user)
+    
+    return render(request, 'accounts/profile_settings.html', {'form': form})
 
 def home(request):
     return render(request, 'home/home.html')
@@ -95,4 +211,3 @@ def home(request):
 def user_logout(request):
     logout(request)
     return redirect('home')  # Ensure 'home' is defined in your urls.py
-

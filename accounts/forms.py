@@ -23,3 +23,25 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ['username', 'email', 'phone', 'street_address', 'city', 'photo', 
                   'user_type', 'specialization', 'license_number', 'date_of_birth', 
                   'gender', 'emergency_contact_number', 'password1', 'password2']
+
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'email', 'phone', 'photo']
+        
+    def __init__(self, *args, **kwargs):
+        super(ProfileEditForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+        self.fields['phone'].required = True
+        
+        # Add Bootstrap classes to form fields
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
+            
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError('This email is already in use.')
+        return email

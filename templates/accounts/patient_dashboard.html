@@ -1,6 +1,100 @@
-{%extends 'base.html'%}
-{% block content %}
+{% extends 'base.html' %}
+{% load tz %}
 
+{% block extra_css %}
+<style>
+    /* Health Metrics */
+    .health-metric {
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        height: 100%;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+
+    .health-metric:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+
+    .metric-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 5px 0;
+    }
+
+    .metric-trend {
+        font-size: 0.85rem;
+        color: #27ae60;
+        margin-top: 5px;
+    }
+
+    .metric-trend i {
+        margin-right: 3px;
+    }
+
+    /* Quick Actions */
+    .quick-action-card {
+        display: block;
+        padding: 25px 15px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 1px solid #e9ecef;
+    }
+
+    .quick-action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .action-icon {
+        margin-bottom: 10px;
+        color: #3498db;
+        transition: all 0.3s ease;
+    }
+
+    .quick-action-card:hover .action-icon {
+        transform: scale(1.1);
+    }
+
+    .action-title {
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin-top: 5px;
+    }
+
+    .quick-action-card.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .health-metric, .quick-action-card {
+            margin-bottom: 15px;
+        }
+        .metric-value {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
     <!-- Main Content -->
     <div class="main-content">
         <!-- Stats Cards -->
@@ -11,7 +105,7 @@
                 </div>
                 <div class="stat-info">
                     <h4>Upcoming Appointments</h4>
-                    <p>3</p>
+                    <p>{{ upcoming_count }}</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -20,7 +114,7 @@
                 </div>
                 <div class="stat-info">
                     <h4>Medical Records</h4>
-                    <p>12</p>
+                    <p>{{ medical_records_count }}</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -29,7 +123,7 @@
                 </div>
                 <div class="stat-info">
                     <h4>Active Medications</h4>
-                    <p>4</p>
+                    <p>{{ active_medications_count }}</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -38,7 +132,120 @@
                 </div>
                 <div class="stat-info">
                     <h4>Test Results</h4>
-                    <p>7</p>
+                    <p>{{ test_results_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Summary Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-heartbeat me-2"></i>Health Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="health-metric">
+                                    <div class="metric-value">{{ health_metrics.last_bp }}</div>
+                                    <div class="metric-label">Blood Pressure</div>
+                                    <div class="metric-trend text-success">
+                                        <i class="fas fa-arrow-down"></i> Normal
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="health-metric">
+                                    <div class="metric-value">{{ health_metrics.last_weight }}</div>
+                                    <div class="metric-label">Weight</div>
+                                    <div class="metric-trend text-success">
+                                        <i class="fas fa-check"></i> Stable
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="health-metric">
+                                    <div class="metric-value">{{ health_metrics.last_glucose }}</div>
+                                    <div class="metric-label">Glucose</div>
+                                    <div class="metric-trend text-success">
+                                        <i class="fas fa-check"></i> Normal
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="health-metric">
+                                    <div class="metric-value">{{ health_metrics.last_visit }}</div>
+                                    <div class="metric-label">Last Visit</div>
+                                    <div class="metric-trend">
+                                        <a href="#" class="text-primary">View Report</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Tips -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-lightbulb me-2"></i>Health Tips</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for tip in health_tips %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <span class="badge bg-primary me-2">{{ tip.category }}</span>
+                                            <i class="fas fa-info-circle text-primary"></i>
+                                        </div>
+                                        <h5 class="card-title">{{ tip.title }}</h5>
+                                        <p class="card-text text-muted">{{ tip.description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            {% for action in quick_actions %}
+                            <div class="col-md-3 col-6 mb-3">
+                                {% if action.enabled %}
+                                    <a href="{% url action.url %}" class="quick-action-card">
+                                {% else %}
+                                    <div class="quick-action-card disabled">
+                                {% endif %}
+                                        <div class="action-icon">
+                                            <i class="fas fa-{{ action.icon }} fa-2x"></i>
+                                        </div>
+                                        <div class="action-title">{{ action.title }}</div>
+                                {% if action.enabled %}
+                                    </a>
+                                {% else %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,76 +267,40 @@
                                         <th>Date & Time</th>
                                         <th>Type</th>
                                         <th>Status</th>
-                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="appointment-row">
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="/api/placeholder/35/35" alt="Doctor" class="avatar-img me-2">
-                                                <div class="doctor-info">
-                                                    <h6>Dr. John Smith</h6>
-                                                    <p>Cardiology</p>
+                                    {% if upcoming_appointments %}
+                                        {% for appointment in upcoming_appointments %}
+                                        <tr class="appointment-row">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-img me-2">
+                                                        <i class="fas fa-user-md fa-2x"></i>
+                                                    </div>
+                                                    <div class="doctor-info">
+                                                        <h6>Dr. {{ appointment.doctor_name }}</h6>
+                                                        <p>{{ appointment.get_specialization_display }}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="appointment-time">Mar 16, 2025<br>09:00 AM</td>
-                                        <td>General Checkup</td>
-                                        <td><span class="status-badge confirmed">Confirmed</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-teleconsult me-1">
-                                                <i class="fas fa-video"></i> Join
-                                            </button>
-                                            <button class="btn btn-sm btn-cancel">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr class="appointment-row">
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="/api/placeholder/35/35" alt="Doctor" class="avatar-img me-2">
-                                                <div class="doctor-info">
-                                                    <h6>Dr. Emily Johnson</h6>
-                                                    <p>Dermatology</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="appointment-time">Mar 18, 2025<br>02:30 PM</td>
-                                        <td>Follow-up</td>
-                                        <td><span class="status-badge confirmed">Confirmed</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-teleconsult me-1">
-                                                <i class="fas fa-video"></i> Join
-                                            </button>
-                                            <button class="btn btn-sm btn-cancel">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr class="appointment-row">
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="/api/placeholder/35/35" alt="Doctor" class="avatar-img me-2">
-                                                <div class="doctor-info">
-                                                    <h6>Dr. Michael Lee</h6>
-                                                    <p>Neurology</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="appointment-time">Mar 22, 2025<br>10:15 AM</td>
-                                        <td>Consultation</td>
-                                        <td><span class="status-badge pending">Pending</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-teleconsult me-1" disabled>
-                                                <i class="fas fa-video"></i> Join
-                                            </button>
-                                            <button class="btn btn-sm btn-cancel">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td class="appointment-time">
+                                                {{ appointment.appointment_date|date:"M d, Y" }}<br>
+                                                {{ appointment.get_time_slot_display|slice:":5" }}
+                                            </td>
+                                            <td>{{ appointment.get_appointment_type_display }}</td>
+                                            <td>
+                                                <span class="status-badge {% if appointment.status == 'scheduled' %}confirmed{% else %}pending{% endif %}">
+                                                    {{ appointment.get_status_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4">No upcoming appointments</td>
+                                        </tr>
+                                    {% endif %}
                                 </tbody>
                             </table>
                         </div>
@@ -144,105 +315,23 @@
                         <h5><i class="fas fa-pills me-2"></i>Current Medications</h5>
                     </div>
                     <div class="card-body p-0">
-                        <div class="medication-item">
-                            <div class="medication-icon">
-                                <i class="fas fa-pills"></i>
+                        {% if active_medications_count > 0 %}
+                            <!-- Placeholder for medications when the model is available -->
+                            <div class="medication-item">
+                                <div class="medication-icon">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                                <div class="medication-info">
+                                    <h6>No active medications</h6>
+                                    <p>Your medications will appear here</p>
+                                </div>
                             </div>
-                            <div class="medication-info">
-                                <h6>Aspirin 81mg</h6>
-                                <p>1 tablet daily, morning</p>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-pills fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No active medications</p>
                             </div>
-                        </div>
-                        <div class="medication-item">
-                            <div class="medication-icon">
-                                <i class="fas fa-capsules"></i>
-                            </div>
-                            <div class="medication-info">
-                                <h6>Metformin 500mg</h6>
-                                <p>1 tablet twice daily, with meals</p>
-                            </div>
-                        </div>
-                        <div class="medication-item">
-                            <div class="medication-icon">
-                                <i class="fas fa-tablets"></i>
-                            </div>
-                            <div class="medication-info">
-                                <h6>Lisinopril 10mg</h6>
-                                <p>1 tablet daily, evening</p>
-                            </div>
-                        </div>
-                        <div class="medication-item">
-                            <div class="medication-icon">
-                                <i class="fas fa-prescription-bottle"></i>
-                            </div>
-                            <div class="medication-info">
-                                <h6>Vitamin D3 2000 IU</h6>
-                                <p>1 capsule daily</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="{% url 'create_appointment' %}" class="text-decoration-none">
-                                    <div class="feature-card">
-                                        <div class="feature-icon">
-                                            <i class="fas fa-calendar-plus"></i>
-                                        </div>
-                                        <h5>Book Appointment</h5>
-                                        <p>Schedule a new appointment with a specialist</p>
-                                        <button class="btn btn-sm btn-book">Book Now</button>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div class="feature-card">
-                                        <div class="feature-icon">
-                                            <i class="fas fa-video"></i>
-                                        </div>
-                                        <h5>Video Consultation</h5>
-                                        <p>Connect with your doctor virtually</p>
-                                        <button class="btn btn-sm btn-book">Start Now</button>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div class="feature-card">
-                                        <div class="feature-icon">
-                                            <i class="fas fa-file-medical"></i>
-                                        </div>
-                                        <h5>View Medical Records</h5>
-                                        <p>Access your health information</p>
-                                        <button class="btn btn-sm btn-book">View Records</button>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div class="feature-card">
-                                        <div class="feature-icon">
-                                            <i class="fas fa-flask"></i>
-                                        </div>
-                                        <h5>Test Results</h5>
-                                        <p>Check your latest lab reports</p>
-                                        <button class="btn btn-sm btn-book">View Results</button>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -257,72 +346,37 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table mb-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Activity</th>
+                                        <th>Details</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
-                                    <tr>
-                                        <td width="50">
-                                            <div class="stat-icon blue">
-                                                <i class="fas fa-calendar-check"></i>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <h6 class="mb-0 text-dark">Appointment Confirmed</h6>
-                                                <p class="mb-0 small text-muted">Appointment with Dr. John Smith on March 16, 2025</p>
-                                            </div>
-                                        </td>
-                                        <td class="text-end text-muted small">
-                                            Yesterday
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="stat-icon green">
-                                                <i class="fas fa-flask"></i>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <h6 class="mb-0 text-dark">Lab Results Available</h6>
-                                                <p class="mb-0 small text-muted">Blood test results are now available</p>
-                                            </div>
-                                        </td>
-                                        <td class="text-end text-muted small">
-                                            2 days ago
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="stat-icon orange">
-                                                <i class="fas fa-pills"></i>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <h6 class="mb-0 text-dark">Prescription Updated</h6>
-                                                <p class="mb-0 small text-muted">Dr. Emily Johnson updated your prescription</p>
-                                            </div>
-                                        </td>
-                                        <td class="text-end text-muted small">
-                                            4 days ago
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="stat-icon purple">
-                                                <i class="fas fa-user-md"></i>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <h6 class="mb-0 text-dark">Doctor Visit Completed</h6>
-                                                <p class="mb-0 small text-muted">Follow-up visit with Dr. Michael Lee</p>
-                                            </div>
-                                        </td>
-                                        <td class="text-end text-muted small">
-                                            1 week ago
-                                        </td>
-                                    </tr>
+                                    {% if recent_activities %}
+                                        {% for activity in recent_activities %}
+                                        <tr>
+                                            <td>{{ activity.appointment_date|date:"M d, Y" }}</td>
+                                            <td>
+                                                <strong>Appointment with Dr. {{ activity.doctor_name }}</strong><br>
+                                                <small class="text-muted">{{ activity.get_appointment_type_display }}</small>
+                                            </td>
+                                            <td>{{ activity.notes|truncatechars:50|default:"No notes" }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if activity.status == 'completed' %}success{% elif activity.status == 'cancelled' %}danger{% else %}warning{% endif %}">
+                                                    {{ activity.get_status_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4">No recent activities</td>
+                                        </tr>
+                                    {% endif %}
                                 </tbody>
                             </table>
                         </div>
@@ -331,5 +385,4 @@
             </div>
         </div>
     </div>
-
-{%endblock content%}
+{% endblock %}

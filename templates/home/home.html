@@ -15,7 +15,6 @@
             --accent-color: #e9f5f7;
             --dark-color: #333333;
             --light-color: #f8f9fa;
-            --sidebar-width: 250px;
         }
         
         body {
@@ -42,58 +41,19 @@
             color: var(--secondary-color);
         }
         
-        .sidebar {
-            width: var(--sidebar-width);
-            position: fixed;
-            top: 56px;
-            left: 0;
-            height: calc(100vh - 56px);
-            background-color: white;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            padding-top: 20px;
-            z-index: 1020;
-            transition: all 0.3s;
-            overflow-y: auto;
-        }
-        
-        .sidebar-link {
-            display: block;
-            padding: 12px 20px;
-            color: var(--dark-color);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-left: 4px solid transparent;
-        }
-        
-        .sidebar-link:hover {
-            background-color: var(--accent-color);
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
-        }
-        
-        .sidebar-link.active {
-            background-color: var(--accent-color);
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .sidebar-link i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-        
         .main-content {
-            margin-left: var(--sidebar-width);
             padding: 20px;
             min-height: calc(100vh - 56px);
+            margin: 0 auto;
+            max-width: 1200px;
+            padding-top: 76px; /* Add padding to account for fixed navbar */
         }
         
         .welcome-header {
             margin-bottom: 30px;
             border-bottom: 1px solid #dee2e6;
             padding-bottom: 15px;
+            text-align: center;
         }
         
         .welcome-header h1 {
@@ -151,6 +111,7 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
+            text-align: center;
         }
         
         .placeholder-text {
@@ -163,11 +124,13 @@
             flex-wrap: wrap;
             gap: 15px;
             margin-bottom: 30px;
+            justify-content: center;
         }
         
         .stat-card {
             flex: 1;
             min-width: 200px;
+            max-width: 250px;
             background-color: white;
             padding: 20px;
             border-radius: 5px;
@@ -222,10 +185,11 @@
         
         .banner-img {
             width: 100%;
-            height: 200px;
+            height: 300px;
             object-fit: cover;
             border-radius: 5px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .avatar-img {
@@ -256,62 +220,159 @@
             font-style: italic;
         }
         
+        .real-time-stats {
+            position: relative;
+            overflow: hidden;
+            padding: 15px;
+            background: linear-gradient(to right, #f8f9fa, #e9f5f7);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .real-time-stats h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+        
+        .real-time-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #dee2e6;
+        }
+        
+        .real-time-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-updates {
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .news-updates h3 {
+            text-align: center;
+        }
+        
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .notifications-badge {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .notifications-badge .badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            border-radius: 50%;
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.25em 0.6em;
+        }
+        
+        .navigation-menu {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .nav-item {
+            background-color: white;
+            border-radius: 50px;
+            padding: 8px 20px;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--dark-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            margin: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .nav-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .nav-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .nav-item.active:hover {
+            color: white;
+        }
+        
+        .nav-item i {
+            margin-right: 8px;
+        }
+
         @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
+            .stat-card {
+                min-width: 45%;
             }
-            
-            .sidebar.show {
-                transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .stat-card {
+                min-width: 100%;
+                max-width: 100%;
             }
             
             .main-content {
-                margin-left: 0;
-            }
-            
-            .navbar-toggler {
-                display: block;
+                padding: 15px;
+                padding-top: 70px;
             }
         }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top ">
         <div class="container-fluid">
-            <button class="navbar-toggler me-2" type="button" id="sidebar-toggle">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <a class="navbar-brand" href="#">E<span>Medic</span></a>
             <div class="ms-auto d-flex align-items-center">
+                <div class="notifications-badge me-3">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </div>
                 <span class="guest-indicator me-3 d-none d-md-inline">Guest Mode</span>
-                {% comment %} <a href="#" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt me-1"></i> Login
-                </a> {% endcomment %}
                 {% if user.is_authenticated %}
                 <a href="{% url 'logout' %}" class="btn btn-danger">
                     <i class="fas fa-sign-out-alt me-1"></i> Logout
                 </a>
-            {% else %}
+                {% else %}
                 <a href="{% url 'login' %}" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt me-1"></i> Login
                 </a>
-            {% endif %}
+                {% endif %}
             </div>
         </div>
     </nav>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="#" class="sidebar-link active"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-calendar-check"></i> Appointments</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-user-injured"></i> Patients</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-user-md"></i> Doctors</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-notes-medical"></i> Health Records</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-comment-medical"></i> Feedback</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-cog"></i> Settings</a>
-        <a href="#" class="sidebar-link"><i class="fas fa-question-circle"></i> Help</a>
-    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -328,7 +389,7 @@
                 </div>
                 <div class="stat-info">
                     <h4>Daily Appointments</h4>
-                    <p>50+</p>
+                    <p>{% if daily_appointments %}{{ daily_appointments }}{% else %}0{% endif %}</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -337,7 +398,7 @@
                 </div>
                 <div class="stat-info">
                     <h4>Active Patients</h4>
-                    <p>1,200+</p>
+                    <p>{% if total_patients %}{{ total_patients }}{% if total_patients >= 1000 %}+{% endif %}{% else %}0{% endif %}</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -346,7 +407,7 @@
                 </div>
                 <div class="stat-info">
                     <h4>Specialist Doctors</h4>
-                    <p>45</p>
+                    <p>{% if total_doctors %}{{ total_doctors }}{% else %}0{% endif %}</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -355,36 +416,57 @@
                 </div>
                 <div class="stat-info">
                     <h4>Departments</h4>
-                    <p>12</p>
+                    <p>{% if total_specializations %}{{ total_specializations }}{% else %}0{% endif %}</p>
                 </div>
             </div>
         </div>
 
         <!-- Main Banner Image -->
-        <img src="/api/placeholder/1200/400" alt="Medical Dashboard" class="banner-img">
+        <img src="https://img.freepik.com/free-photo/medical-banner-with-doctor-wearing-coat_23-2149611236.jpg" alt="Medical Dashboard" class="banner-img">
+
+        <!-- Real-time Stats Section -->
+        <div class="real-time-stats mb-4">
+            <h3><i class="fas fa-chart-line me-2"></i> Real-time Hospital Activity</h3>
+            <div class="real-time-item">
+                <span>Current ER Wait Time</span>
+                <strong>{% if current_er_wait %}{{ current_er_wait }}{% else %}15{% endif %} minutes</strong>
+            </div>
+            <div class="real-time-item">
+                <span>Available Beds</span>
+                <strong>{% if available_beds %}{{ available_beds }}{% else %}43{% endif %}/{% if total_beds %}{{ total_beds }}{% else %}120{% endif %}</strong>
+            </div>
+            <div class="real-time-item">
+                <span>Surgeries Today</span>
+                <strong>{% if surgeries_today %}{{ surgeries_today }}{% else %}12{% endif %}</strong>
+            </div>
+            <div class="real-time-item">
+                <span>Staff On Duty</span>
+                <strong>{% if staff_on_duty %}{{ staff_on_duty }}{% else %}78{% endif %}</strong>
+            </div>
+        </div>
 
         <div class="quick-access row">
             <div class="col-md-3 col-sm-6 mb-4">
                 <a href="#" class="access-button">
-                    <img src="/api/placeholder/60/60" alt="Appointments" class="mb-2">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3448/3448608.png" alt="Appointments" class="mb-2">
                     <span>Appointments</span>
                 </a>
             </div>
             <div class="col-md-3 col-sm-6 mb-4">
                 <a href="#" class="access-button">
-                    <img src="/api/placeholder/60/60" alt="Patients" class="mb-2">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3304/3304567.png" alt="Patients" class="mb-2">
                     <span>Patients</span>
                 </a>
             </div>
             <div class="col-md-3 col-sm-6 mb-4">
                 <a href="#" class="access-button">
-                    <img src="/api/placeholder/60/60" alt="Doctors" class="mb-2">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3304/3304501.png" alt="Doctors" class="mb-2">
                     <span>Doctors</span>
                 </a>
             </div>
             <div class="col-md-3 col-sm-6 mb-4">
                 <a href="#" class="access-button">
-                    <img src="/api/placeholder/60/60" alt="New Appointment" class="mb-2">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4312/4312038.png" alt="New Appointment" class="mb-2">
                     <span>New Appointment</span>
                 </a>
             </div>
@@ -394,7 +476,22 @@
             <h3>System Overview</h3>
             <div class="placeholder-text">
                 <p>Welcome to the EMedic Healthcare Management System. This platform is designed to streamline medical practice operations, improve patient care coordination, and enhance the overall healthcare experience. Healthcare providers have access to comprehensive tools for managing appointments, patient records, and medical data.</p>
-                <p>Please <a href="#" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">login</a> to access all features and functionality of the system. The dashboard provides quick access to important tasks and information. Use the sidebar navigation to explore different sections of the application.</p>
+                <p>Please <a href="#" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">login</a> to access all features and functionality of the system. The dashboard provides quick access to important tasks and information. Use the navigation menu to explore different sections of the application.</p>
+            </div>
+        </div>
+
+        <!-- Latest News/Updates Section -->
+        <div class="news-updates mb-4">
+            <h3><i class="fas fa-newspaper me-2"></i> Latest Updates</h3>
+            <div class="news-item">
+                <h5>New Telemedicine Services Available</h5>
+                <p>We've launched new telemedicine services for remote consultations. Patients can now connect with doctors from the comfort of their homes.</p>
+                <span class="news-date">May 28, 2025</span>
+            </div>
+            <div class="news-item">
+                <h5>System Maintenance Notice</h5>
+                <p>Scheduled maintenance will occur on June 2, 2025 from 2:00 AM to 4:00 AM. Some services may be temporarily unavailable.</p>
+                <span class="news-date">May 25, 2025</span>
             </div>
         </div>
 
@@ -406,7 +503,7 @@
                         <a href="#" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="/api/placeholder/40/40" alt="Specialty" class="avatar-img me-3">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966334.png" alt="Cardiology" class="avatar-img me-3">
                                     <div>
                                         <h5 class="mb-1">Cardiology</h5>
                                         <p class="mb-1">Heart & Cardiovascular Care</p>
@@ -418,7 +515,7 @@
                         <a href="#" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="/api/placeholder/40/40" alt="Specialty" class="avatar-img me-3">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966486.png" alt="Neurology" class="avatar-img me-3">
                                     <div>
                                         <h5 class="mb-1">Neurology</h5>
                                         <p class="mb-1">Brain & Nervous System</p>
@@ -430,7 +527,7 @@
                         <a href="#" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="/api/placeholder/40/40" alt="Specialty" class="avatar-img me-3">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966485.png" alt="Orthopedics" class="avatar-img me-3">
                                     <div>
                                         <h5 class="mb-1">Orthopedics</h5>
                                         <p class="mb-1">Bone & Joint Care</p>
@@ -449,7 +546,7 @@
                         <a href="#" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="/api/placeholder/40/40" alt="Service" class="avatar-img me-3">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/5849/5849649.png" alt="Emergency" class="avatar-img me-3">
                                     <div>
                                         <h5 class="mb-1">24/7 Emergency Care</h5>
                                         <p class="mb-1">Round-the-clock emergency services</p>
@@ -460,7 +557,7 @@
                         <a href="#" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="/api/placeholder/40/40" alt="Service" class="avatar-img me-3">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/3043/3043918.png" alt="Imaging" class="avatar-img me-3">
                                     <div>
                                         <h5 class="mb-1">Diagnostic Imaging</h5>
                                         <p class="mb-1">X-ray, MRI, CT scan and ultrasound</p>
@@ -471,7 +568,7 @@
                         <a href="#" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="/api/placeholder/40/40" alt="Service" class="avatar-img me-3">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/1894/1894883.png" alt="Laboratory" class="avatar-img me-3">
                                     <div>
                                         <h5 class="mb-1">Laboratory Services</h5>
                                         <p class="mb-1">Comprehensive testing facilities</p>
@@ -492,6 +589,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="card">
+                                <img src="https://img.freepik.com/free-photo/covid19-preventing-virus-health-healthcare-workers-concept-serious-looking-female-doctor-medical-mask-gloves-pointing-fingers-down-showing-information-about-coronavirus_1258-119178.jpg" class="card-img-top" alt="COVID-19" style="height: 160px; object-fit: cover;">
                                 <div class="card-body">
                                     <h5 class="card-title">COVID-19 Updates</h5>
                                     <p class="card-text">Stay updated with the latest information about COVID-19 prevention, symptoms, and treatment options.</p>
@@ -501,6 +599,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="card">
+                                <img src="https://img.freepik.com/free-photo/top-view-fitness-accessories-healthy-food-wooden-background_23-2148523441.jpg" class="card-img-top" alt="Healthy Living" style="height: 160px; object-fit: cover;">
                                 <div class="card-body">
                                     <h5 class="card-title">Healthy Living Tips</h5>
                                     <p class="card-text">Discover practical advice for maintaining a healthy lifestyle, including diet, exercise, and mental well-being.</p>
@@ -517,20 +616,60 @@
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebar-toggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-        });
+        // Simulate real-time data updates
+        setInterval(function() {
+            const waitTime = document.querySelector('.real-time-item:first-child strong');
+            const currentWait = parseInt(waitTime.textContent);
+            const newWait = Math.max(5, Math.min(30, currentWait + Math.floor(Math.random() * 5) - 2));
+            waitTime.textContent = newWait + ' minutes';
+        }, 30000);
         
-        // Hide sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.sidebar');
-            const sidebarToggle = document.getElementById('sidebar-toggle');
+        // Counter animation for stats
+        const counters = document.querySelectorAll('.counter');
+        
+        // Function to animate the counter
+        function animateCounter() {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                
+                // Calculate the increment based on the target value
+                const increment = target > 100 ? Math.ceil(target / 50) : 1;
+                
+                // If count hasn't reached target yet, increment it
+                if (count < target) {
+                    // Add increment to count and display new value
+                    counter.innerText = count + increment;
+                    // Call function every 30ms until we reach the target
+                    setTimeout(animateCounter, 30);
+                } else {
+                    // Ensure the final number is exactly the target value
+                    counter.innerText = target;
+                    
+                    // For large numbers, add plus sign
+                    if (target >= 1000) {
+                        counter.innerText = counter.innerText + '+';
+                    }
+                }
+            });
+        }
+        
+        // Start animation when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start the counter animation
+            animateCounter();
             
-            if (window.innerWidth < 992 && sidebar.classList.contains('show') && 
-                !sidebar.contains(event.target) && event.target !== sidebarToggle) {
-                sidebar.classList.remove('show');
-            }
+            // Periodically update the stats with small random variations
+            setInterval(function() {
+                counters.forEach(counter => {
+                    const currentTarget = parseInt(counter.getAttribute('data-target'));
+                    const newTarget = Math.round(currentTarget * (1 + (Math.random() * 0.04 - 0.02)));
+                    counter.setAttribute('data-target', newTarget);
+                    // Reset the counter to start animation again
+                    counter.innerText = Math.floor(currentTarget * 0.9);
+                });
+                animateCounter();
+            }, 300000); // Update every 5 minutes
         });
     </script>
 </body>

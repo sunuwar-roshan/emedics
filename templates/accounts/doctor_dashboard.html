@@ -72,7 +72,7 @@
                                                         {% if appointment.patient.photo %}
                                                             <img src="{{ appointment.patient.photo.url }}" alt="Patient" class="avatar-img me-3">
                                                         {% else %}
-                                                            <img src="/api/placeholder/40/40" alt="Patient" class="avatar-img me-3">
+                                                            <img src="https://ui-avatars.com/api/?name={{ appointment.patient.username|urlencode }}&background=random" alt="Patient" class="avatar-img me-3">
                                                         {% endif %}
                                                         <div class="patient-info">
                                                             <h6>{{ appointment.patient_name }}</h6>
@@ -206,7 +206,11 @@
                                             <tr class="patient-row">
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="/api/placeholder/40/40" alt="Patient" class="avatar-img me-3">
+                                                        {% if patient.photo %}
+                                                            <img src="{{ patient.photo.url }}" alt="Patient" class="avatar-img me-3">
+                                                        {% else %}
+                                                            <img src="https://ui-avatars.com/api/?name={{ patient.username|urlencode }}&background=random" alt="Patient" class="avatar-img me-3">
+                                                        {% endif %}
                                                         <div class="patient-info">
                                                             <h6>{{ patient.patient_name }}</h6>
                                                             <p>{{ patient.patient_email }}</p>
